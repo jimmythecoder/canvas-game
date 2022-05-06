@@ -1,0 +1,46 @@
+@import 'uikit';
+
+:root {
+    --font-color--primary: #333;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--font-color--primary);
+  margin: 1em;
+}
+
+h1 {
+    text-align: center;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+}
+
+.controls {
+    margin: 2em;
+    text-align: center;
+}
+
+#viewbox {
+    background: black;
+    border-radius: 4px;
+}
+
+.hidden {
+    display: none;
+}
+
+#fps-counter {
+    text-align: right;
+}

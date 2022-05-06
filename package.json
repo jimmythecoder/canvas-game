@@ -1,0 +1,20 @@
+{
+  "name": "zelda",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.7",
+    "postcss": "^8.4.13",
+    "typescript": "^4.5.4",
+    "vite": "^2.9.7"
+  },
+  "dependencies": {
+    "detect-collisions": "^4.0.2",
+    "uikit": "^3.14.1"
+  }
+}

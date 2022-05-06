@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jimmys World</title>
+  </head>
+  <body>
+    <div id="app">
+        <h1>Jimmy's World</h1>
+
+        <div class="container">
+            <canvas id="viewbox" width="640" height="480"></canvas>
+        </div>
+
+        <div class="controls">
+            <button id="start" class="uk-button uk-button-primary">Start Game</button>
+            <button id="stop" class="uk-button uk-button-secondary hidden">Stop Game</button>
+        </div>
+
+        <div id="fps-counter">
+            <label for="fps">FPS:
+                <span id="fps">0</span>
+            </label>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
