@@ -1,6 +1,6 @@
 import './style.css';
 
-import { Sprite, BaseMap, SpriteTile, Player, Tile, Layer } from './layers';
+import { Sprite, BaseMap, SpriteTile, Player, Tile, Layer, FightArena } from './layers';
 import { Controller } from './controller';
 import { GameState } from './gamestate';
 import { FrameCounter } from './frame';
@@ -31,6 +31,36 @@ class MapSize {
     static rows         = MapSize.height / MapSize.tileHeight;
 }
 
+class Wall extends Collisions.Box {
+    constructor(vector: Vector2D, public index: number) {
+        super(vector, MapSize.tileWidth, MapSize.tileHeight);
+    }
+}
+
+class PlayerBox extends Collisions.Box {
+    constructor(vector: Vector2D) {
+        super(vector, MapSize.tileWidth, MapSize.tileHeight);
+    }
+}
+
+class Door extends Collisions.Box {
+    constructor(vector: Vector2D, public index: number) {
+        super(vector, MapSize.tileWidth, MapSize.tileHeight);
+    }
+
+    /**
+     * Opens the Door to a house
+     */
+    open() {
+        console.log('Opening Door:', this.index);
+    }
+}
+
+const CollisionBoxType = {
+    Wall: 1,
+    Door: 2
+};
+
 /**
  * Collision detection map
  */
@@ -40,9 +70,18 @@ collisionMap.forEach((tile, idx) => {
     if(tile) {
         const column    = idx % MapSize.columns;
         const row       = Math.floor(idx / MapSize.columns);
+        const vector    = {x: MapSize.tileWidth * column, y: MapSize.tileHeight * row};
 
-        const box = new Collisions.Box({x: MapSize.tileWidth * column, y: MapSize.tileHeight * row}, MapSize.tileWidth, MapSize.tileHeight);
-        collisions.insert(box);
+        switch(tile) {
+            case CollisionBoxType.Wall:
+                collisions.insert(new Wall(vector, idx));
+                break;
+            case CollisionBoxType.Door:
+                collisions.insert(new Door(vector, idx));
+                break;
+            default:
+                collisions.insert(new Collisions.Box(vector, MapSize.tileWidth, MapSize.tileHeight));
+        }
     }
 });
 
@@ -102,9 +141,16 @@ const player = new Player(
 player.position.x = 220;
 player.position.y = 340;
 
+
+const arena = new FightArena(150, 200);
+arena.position.x = 400;
+arena.position.y = 200;
+
+
 layers.push(land);
 layers.push(player);
 layers.push(foreground);
+//layers.push(arena);
 
 
 function render() {
@@ -124,7 +170,7 @@ function getCollisions(playerPosition: Vector2D, landPosition: Vector2D) {
         y: Math.abs(landPosition.y) + playerPosition.y
     };
 
-    const playerBox = new Collisions.Box({x: playerMapPosition.x, y: playerMapPosition.y}, MapSize.tileWidth, MapSize.tileHeight);
+    const playerBox = new PlayerBox({x: playerMapPosition.x, y: playerMapPosition.y});
 
     return collisions.getPotentials(playerBox).filter((collider) => {
         return collisions.checkCollision(playerBox, collider);
@@ -136,9 +182,14 @@ function main() {
     let key;
 
     if(key = controls.getLastKeyPress()) {
+
+        let collisions: Collisions.TBody[] = [];
+
         switch(key) {
             case 'ArrowDown':
-                if(!getCollisions(player.position, {x: land.position.x, y: land.position.y - settings.moveDistance}).length) {
+                collisions = getCollisions(player.position, {x: land.position.x, y: land.position.y - settings.moveDistance});
+
+                if(!collisions.length) {
                     land.move('up', settings.moveDistance);
                     foreground.move('up', settings.moveDistance);
                 }
@@ -146,7 +197,9 @@ function main() {
                 player.walk('down');
                 break;
             case 'ArrowUp':
-                if(!getCollisions(player.position, {x: land.position.x, y: land.position.y + settings.moveDistance}).length) {
+                collisions = getCollisions(player.position, {x: land.position.x, y: land.position.y + settings.moveDistance});
+
+                if(!collisions.length) {
                     land.move('down', settings.moveDistance);
                     foreground.move('down', settings.moveDistance);
                 }
@@ -154,7 +207,9 @@ function main() {
                 player.walk('up');
                 break;
             case 'ArrowLeft':
-                if(!getCollisions(player.position, {x: land.position.x + settings.moveDistance, y: land.position.y}).length) {
+                collisions = getCollisions(player.position, {x: land.position.x + settings.moveDistance, y: land.position.y});
+
+                if(!collisions.length) {
                     land.move('right', settings.moveDistance);
                     foreground.move('right', settings.moveDistance);
                 }
@@ -162,7 +217,9 @@ function main() {
                 player.walk('left');
                 break;
             case 'ArrowRight':
-                if(!getCollisions(player.position, {x: land.position.x - settings.moveDistance, y: land.position.y}).length) {
+                collisions = getCollisions(player.position, {x: land.position.x - settings.moveDistance, y: land.position.y});
+                
+                if(!collisions.length) {
                     land.move('left', settings.moveDistance);
                     foreground.move('left', settings.moveDistance);
                 }
@@ -170,6 +227,16 @@ function main() {
                 player.walk('right');
                 break;
         }
+
+        console.log(collisions);
+
+        collisions.forEach(collider => {
+            if(collider instanceof Door) {
+                collider.open();
+            }
+        });
+
+        console.log('Collided with', collisions.map(collider => collider.constructor.name).join(', '));
     }
 
     render();

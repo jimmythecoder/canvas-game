@@ -1,4 +1,3 @@
-import * as Collisions from 'detect-collisions';
 import type * as Types from './types';
 
 export abstract class Layer {
@@ -43,6 +42,13 @@ export abstract class Layer {
         }
 
         this.renderQueue = true;
+    }
+}
+
+export class FightArena extends Layer {
+    render(context: CanvasRenderingContext2D) {
+        context.fillStyle = '#FF0000';
+        context.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 }
 
